@@ -1,10 +1,11 @@
 import { MarkdownView, Notice, Plugin } from 'obsidian';
-import { ShowIntelissensePopup } from 'src/IntelissensePopupConfig';
+import { ShowIntelissensePopup as ShowIntelissensePopupOnActualCursor } from 'src/IntelissensePopupConfig';
 
 export interface CodeIntelissenseSettings {
 	mySetting: string;
-	PopupX_Offset: number;
-	PopupY_Offset: number;
+	PopupX_Offset_REM: number;
+	PopupY_Offset_REM: number;
+	Position: "up" | "down";
 }
 
 export class Globals {
@@ -12,13 +13,39 @@ export class Globals {
 	public static POPUPID = "kristainlaimon-intelissense-menu";
 	public static Settings: CodeIntelissenseSettings = {
 		mySetting: 'default', //default value
-		PopupX_Offset: 4, //default value
-		PopupY_Offset: 5, //default value
+		PopupX_Offset_REM: 0.9, //default value
+		PopupY_Offset_REM: 0.5, //default value
+		Position: "up"
+	}
+
+	public static ChangeIntelissensePopupPosition(options: {
+		startX: number,
+		startY: number,
+		offsetX_REM: number,
+		offsetY_REM: number,
+		position: "up" | "down"
+	}) {
+		if (this.INTELISSENSE_POPUP_ELEMENT) {
+			const popup = this.INTELISSENSE_POPUP_ELEMENT;
+
+			// Calculate height in REM
+			const heightPx = popup.getBoundingClientRect().height;
+			const remSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+			const heightREM = heightPx / remSize;
+
+			// Determine adjusted Y offset
+			const adjustedOffsetY_REM =
+				options.position === "up"
+					? options.offsetY_REM - heightREM - 1.4
+					: options.offsetY_REM;
+
+			popup.style.left = `calc(${options.startX}px + ${options.offsetX_REM}rem)`;
+			popup.style.top = `calc(${options.startY}px + ${adjustedOffsetY_REM}rem)`;
+		}
 	}
 }
 
 export default class CodeIntelissensePlugin extends Plugin {
-	// private lastActiveFile: string | null = null;
 	private lastEditorEl: HTMLElement | null = null;
 
 	async onload() {
@@ -31,11 +58,8 @@ export default class CodeIntelissensePlugin extends Plugin {
 
 	private onKeyDownInsideEditor(actualEditor: HTMLElement, e: KeyboardEvent) {
 		if (e.key) this.debug(`Key pressed: ${e.key}`);
-		// this.TriggerIntelissensePopup();
-		ShowIntelissensePopup();
+		ShowIntelissensePopupOnActualCursor({ options: ["Opción 1", "Opción 2", "Opción 3"] });
 	}
-
-
 
 	onunload() {
 		// Limpia el último listener si existe

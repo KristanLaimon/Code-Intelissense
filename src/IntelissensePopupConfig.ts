@@ -24,11 +24,13 @@ export function DeleteIntelissensePopup(): boolean {
   }
 }
 
-type IntelissensePopupOptions = {
-  coordX: number;
-  coordY: number;
+// type CreationIntelissenseProps = {
+//   coordX: number;
+//   coordY: number;
+// }
+export interface ShowingIntelissenseProps {
+  options: string[]
 }
-
 /**
  * Creates an IntelliSense popup menu and returns the HTMLDivElement.
  * The popup is styled with a dark theme and contains placeholder options.
@@ -36,33 +38,61 @@ type IntelissensePopupOptions = {
  * 
  * @returns {HTMLDivElement} The created IntelliSense popup menu element.
  */
-export function CreateIntelissensePopup(options: IntelissensePopupOptions): HTMLDivElement {
+export function CreateIntelissensePopup(options: ShowingIntelissenseProps): HTMLDivElement {
   const menu = document.createElement("div");
   menu.id = Globals.POPUPID;
-  menu.textContent = "Fake Intellisense Menu: Option1, Option2, Option3";
   menu.style.position = "fixed";
 
-  // Position the menu at the provided coordinates
-  menu.style.top = `${options.coordY}px`;
-  menu.style.left = `${options.coordX}px`;
+  // Setup menu styling
+  Object.assign(menu.style, {
+    background: "#222",
+    color: "#fff",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    zIndex: "9999",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    fontSize: "14px",
+    maxHeight: "200px",
+    overflowY: "auto",
+    whiteSpace: "nowrap",
+    pointerEvents: "auto",
+    userSelect: "none",
+    cursor: "default",
+    transition: "opacity 0.2s ease-in-out",
+    visibility: "hidden"  // Hide it initially
+  });
 
-  menu.style.background = "#222";
-  menu.style.color = "#fff";
-  menu.style.padding = "8px 16px";
-  menu.style.borderRadius = "6px";
-  menu.style.zIndex = "9999";
-  menu.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
+  // Add the options
+  options.options.forEach((optionTxt: string) => {
+    const selectionDiv = document.createElement("div");
+    selectionDiv.textContent = optionTxt;
+    selectionDiv.style.padding = "4px 0px";
+    selectionDiv.style.textAlign = "left";
+    menu.appendChild(selectionDiv);
+  });
 
-  // Remove menu on next key or click
-  // setTimeout(() => {
-  //   window.addEventListener("keydown", () => menu.remove(), { once: true });
-  //   window.addEventListener("mousedown", () => menu.remove(), { once: true });
-  // }, 0);
+  // TEMPORARILY append to DOM to measure its size
+  document.body.appendChild(menu);
+  // const menuHeight = menu.getBoundingClientRect().height;
+
+  // Reposition based on height (e.g., show above the cursor)
+  // const top = options.coordY - menuHeight - 4; // -4px offset
+  // const left = options.coordX + Globals.Settings.PopupX_Offset_REM * 16;
+
+  menu.style.top = `${Globals.Settings.PopupY_Offset_REM}rem`;
+  menu.style.left = `${Globals.Settings.PopupX_Offset_REM}rem`;
+
+  menu.style.visibility = "visible"; // Now show it
 
   return menu;
 }
 
-export function ShowIntelissensePopup() {
+
+//Shows initialis from DOWN LEFT corner of CHAR!
+export function ShowIntelissensePopup(options: ShowingIntelissenseProps) {
   const selection = window.getSelection();
   const range = selection?.getRangeAt(0);
 
@@ -85,10 +115,14 @@ export function ShowIntelissensePopup() {
     if (rect.left !== 0 || rect.bottom !== 0) {
       if (!Globals.INTELISSENSE_POPUP_ELEMENT) {
         // this.intellisensePopup = CreateIntelissensePopup(rect.left + this.settings.PopupX_Offset, rect.bottom + this.settings.PopupY_Offset);
-        Globals.INTELISSENSE_POPUP_ELEMENT = CreateIntelissensePopup({
-          coordX: rect.left + Globals.Settings.PopupX_Offset,
-          coordY: rect.bottom + Globals.Settings.PopupY_Offset,
-        });
+        Globals.INTELISSENSE_POPUP_ELEMENT = CreateIntelissensePopup(options);
+        Globals.ChangeIntelissensePopupPosition({
+          startX: rect.left,
+          startY: rect.bottom,
+          offsetX_REM: Globals.Settings.PopupX_Offset_REM,
+          offsetY_REM: Globals.Settings.PopupY_Offset_REM,
+          position: Globals.Settings.Position
+        })
         document.body.appendChild(Globals.INTELISSENSE_POPUP_ELEMENT);
 
         // Auto-remove popup on Escape key or click
@@ -105,8 +139,15 @@ export function ShowIntelissensePopup() {
         window.addEventListener("mousedown", cleanup);
       } else {
         // Just move existing popup
-        Globals.INTELISSENSE_POPUP_ELEMENT.style.left = `${rect.left + Globals.Settings.PopupX_Offset}px`;
-        Globals.INTELISSENSE_POPUP_ELEMENT.style.top = `${rect.bottom + Globals.Settings.PopupY_Offset}px`;
+        Globals.ChangeIntelissensePopupPosition({
+          startX: rect.left,
+          startY: rect.bottom,
+          offsetX_REM: Globals.Settings.PopupX_Offset_REM,
+          offsetY_REM: Globals.Settings.PopupY_Offset_REM,
+          position: Globals.Settings.Position
+        })
+        // Globals.INTELISSENSE_POPUP_ELEMENT.style.left = `${rect.left + Globals.Settings.PopupX_Offset}px`;
+        // Globals.INTELISSENSE_POPUP_ELEMENT.style.top = `${rect.bottom + Globals.Settings.PopupY_Offset}px`;
       }
     }
   }
