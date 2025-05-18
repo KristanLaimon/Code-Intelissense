@@ -1,5 +1,5 @@
 import { MarkdownView, Notice, Plugin } from 'obsidian';
-import { ShowIntelissensePopup as ShowIntelissensePopupOnActualCursor } from 'src/IntelissensePopupConfig';
+import { Intelisense_ShowFromGlobal as ShowIntelissensePopupOnActualCursor } from 'src/IntelissensePopupConfig';
 
 export interface CodeIntelissenseSettings {
 	mySetting: string;
@@ -15,7 +15,7 @@ export class Globals {
 		mySetting: 'default', //default value
 		PopupX_Offset_REM: 0.9, //default value
 		PopupY_Offset_REM: 0.5, //default value
-		Position: "up"
+		Position: "down"
 	}
 
 	public static ChangeIntelissensePopupPosition(options: {

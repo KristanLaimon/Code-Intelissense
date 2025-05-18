@@ -1,20 +1,18 @@
 import { Globals } from 'main';
-
 /**
  * Checks if an intellisense popup already exists in the document.
  * @returns {boolean} Whether a popup already exists.
  */
-export function IsIntelissensePopupOnScreen(): boolean {
+export function Intelissense_CheckIfOnScreen(): boolean {
   // Check if menu already exists
   const oldMenu = document.getElementById(Globals.POPUPID);
   return !!oldMenu;
 }
-
 /**
  * Deletes the intellisense popup if it exists in the document.
  * @returns {boolean} Whether the popup was deleted. If the popup does not exist, returns false.
  */
-export function DeleteIntelissensePopup(): boolean {
+export function Intelissense_DeleteFromScreen(): boolean {
   const oldMenu = document.getElementById(Globals.POPUPID);
   if (oldMenu) {
     oldMenu.remove();
@@ -23,11 +21,6 @@ export function DeleteIntelissensePopup(): boolean {
     return false;
   }
 }
-
-// type CreationIntelissenseProps = {
-//   coordX: number;
-//   coordY: number;
-// }
 export interface ShowingIntelissenseProps {
   options: string[]
 }
@@ -38,7 +31,7 @@ export interface ShowingIntelissenseProps {
  * 
  * @returns {HTMLDivElement} The created IntelliSense popup menu element.
  */
-export function CreateIntelissensePopup(options: ShowingIntelissenseProps): HTMLDivElement {
+export function Intelissense_CreatePopup(options: ShowingIntelissenseProps): HTMLDivElement {
   const menu = document.createElement("div");
   menu.id = Globals.POPUPID;
   menu.style.position = "fixed";
@@ -74,17 +67,8 @@ export function CreateIntelissensePopup(options: ShowingIntelissenseProps): HTML
     menu.appendChild(selectionDiv);
   });
 
-  // TEMPORARILY append to DOM to measure its size
-  document.body.appendChild(menu);
-  // const menuHeight = menu.getBoundingClientRect().height;
-
-  // Reposition based on height (e.g., show above the cursor)
-  // const top = options.coordY - menuHeight - 4; // -4px offset
-  // const left = options.coordX + Globals.Settings.PopupX_Offset_REM * 16;
-
   menu.style.top = `${Globals.Settings.PopupY_Offset_REM}rem`;
   menu.style.left = `${Globals.Settings.PopupX_Offset_REM}rem`;
-
   menu.style.visibility = "visible"; // Now show it
 
   return menu;
@@ -92,7 +76,7 @@ export function CreateIntelissensePopup(options: ShowingIntelissenseProps): HTML
 
 
 //Shows initialis from DOWN LEFT corner of CHAR!
-export function ShowIntelissensePopup(options: ShowingIntelissenseProps) {
+export function Intelisense_ShowFromGlobal(options: ShowingIntelissenseProps) {
   const selection = window.getSelection();
   const range = selection?.getRangeAt(0);
 
@@ -115,7 +99,7 @@ export function ShowIntelissensePopup(options: ShowingIntelissenseProps) {
     if (rect.left !== 0 || rect.bottom !== 0) {
       if (!Globals.INTELISSENSE_POPUP_ELEMENT) {
         // this.intellisensePopup = CreateIntelissensePopup(rect.left + this.settings.PopupX_Offset, rect.bottom + this.settings.PopupY_Offset);
-        Globals.INTELISSENSE_POPUP_ELEMENT = CreateIntelissensePopup(options);
+        Globals.INTELISSENSE_POPUP_ELEMENT = Intelissense_CreatePopup(options);
         Globals.ChangeIntelissensePopupPosition({
           startX: rect.left,
           startY: rect.bottom,
@@ -146,8 +130,6 @@ export function ShowIntelissensePopup(options: ShowingIntelissenseProps) {
           offsetY_REM: Globals.Settings.PopupY_Offset_REM,
           position: Globals.Settings.Position
         })
-        // Globals.INTELISSENSE_POPUP_ELEMENT.style.left = `${rect.left + Globals.Settings.PopupX_Offset}px`;
-        // Globals.INTELISSENSE_POPUP_ELEMENT.style.top = `${rect.bottom + Globals.Settings.PopupY_Offset}px`;
       }
     }
   }
