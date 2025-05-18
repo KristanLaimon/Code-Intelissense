@@ -26,24 +26,39 @@ export default class CodeIntelissensePlugin extends Plugin {
 	private onKeyDownInsideEditor(actualEditor: HTMLElement, e: KeyboardEvent) {
 		if (e.key) this.debug(`Key pressed: ${e.key}`);
 
-		if (e.key === "f") {
-			e.preventDefault();
+		if (e.key) {
+			// e.preventDefault();
+
 			if (!IsIntelissensePopupOnScreen()) {
-				// Get the selection coordinates
 				const selection = window.getSelection();
 				const range = selection?.getRangeAt(0);
-				const rect = range?.getBoundingClientRect();
 
-				if (rect) {
-					const popup = CreateIntelissensePopup(
-						/* Coord x: */ rect.left + 4,
-						/* Coord y: */ rect.bottom + 5 // 5px offset below cursor
-					);
-					document.body.appendChild(popup);
+				if (range) {
+					// Insert temporary span to get accurate position
+					const tempSpan = document.createElement("span");
+					tempSpan.textContent = "\u200b"; // zero-width space
+					tempSpan.style.display = "inline-block";
+					tempSpan.style.width = "1px";
+					tempSpan.style.height = "1em";
+
+					range.insertNode(tempSpan);
+					const rect = tempSpan.getBoundingClientRect();
+
+					if (rect.left !== 0 || rect.bottom !== 0) {
+						const popup = CreateIntelissensePopup(rect.left + 4, rect.bottom + 5);
+						document.body.appendChild(popup);
+					}
+
+					// Clean up the span after getting rect
+					tempSpan.remove();
+					// Restore the selection position
+					selection?.removeAllRanges();
+					selection?.addRange(range);
 				}
 			}
 		}
 	}
+
 
 
 	onunload() {
