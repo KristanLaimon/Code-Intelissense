@@ -1,18 +1,24 @@
-import { MarkdownView, Notice, Plugin, Editor } from 'obsidian';
-import { CreateIntelissensePopup, IsIntelissensePopupOnScreen } from 'src/IntelissensePopupConfig';
+import { MarkdownView, Notice, Plugin } from 'obsidian';
+import { ShowIntelissensePopup } from 'src/IntelissensePopupConfig';
 
-
-interface CodeIntelissenseSettings {
+export interface CodeIntelissenseSettings {
 	mySetting: string;
+	PopupX_Offset: number;
+	PopupY_Offset: number;
 }
 
-const DEFAULT_SETTINGS: CodeIntelissenseSettings = {
-	mySetting: 'default'
+export class Globals {
+	public static INTELISSENSE_POPUP_ELEMENT: HTMLDivElement | null = null;
+	public static POPUPID = "kristainlaimon-intelissense-menu";
+	public static Settings: CodeIntelissenseSettings = {
+		mySetting: 'default', //default value
+		PopupX_Offset: 4, //default value
+		PopupY_Offset: 5, //default value
+	}
 }
 
 export default class CodeIntelissensePlugin extends Plugin {
-	settings: CodeIntelissenseSettings;
-	lastActiveFile: string | null = null;
+	// private lastActiveFile: string | null = null;
 	private lastEditorEl: HTMLElement | null = null;
 
 	async onload() {
@@ -25,38 +31,8 @@ export default class CodeIntelissensePlugin extends Plugin {
 
 	private onKeyDownInsideEditor(actualEditor: HTMLElement, e: KeyboardEvent) {
 		if (e.key) this.debug(`Key pressed: ${e.key}`);
-
-		if (e.key) {
-			// e.preventDefault();
-
-			if (!IsIntelissensePopupOnScreen()) {
-				const selection = window.getSelection();
-				const range = selection?.getRangeAt(0);
-
-				if (range) {
-					// Insert temporary span to get accurate position
-					const tempSpan = document.createElement("span");
-					tempSpan.textContent = "\u200b"; // zero-width space
-					tempSpan.style.display = "inline-block";
-					tempSpan.style.width = "1px";
-					tempSpan.style.height = "1em";
-
-					range.insertNode(tempSpan);
-					const rect = tempSpan.getBoundingClientRect();
-
-					if (rect.left !== 0 || rect.bottom !== 0) {
-						const popup = CreateIntelissensePopup(rect.left + 4, rect.bottom + 5);
-						document.body.appendChild(popup);
-					}
-
-					// Clean up the span after getting rect
-					tempSpan.remove();
-					// Restore the selection position
-					selection?.removeAllRanges();
-					selection?.addRange(range);
-				}
-			}
-		}
+		// this.TriggerIntelissensePopup();
+		ShowIntelissensePopup();
 	}
 
 
@@ -70,11 +46,11 @@ export default class CodeIntelissensePlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		Globals.Settings = Object.assign({}, Globals.Settings, await this.loadData());
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
+		await this.saveData(Globals.Settings);
 	}
 
 	private debug(msg: string) {
