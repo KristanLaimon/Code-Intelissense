@@ -1,11 +1,11 @@
 {
-	"id": "krislaimon-code-intelissense",
-	"name": "Code Intelissense (Beta)",
+	"id": "krislaimon-code-sense",
+	"name": "Code Sense (Beta)",
 	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Brings to life code completion, suggestions and sintax highlighting to your code blocks in obsidian!",
 	"author": "KristanLaimon",
 	"authorUrl": "https://github.com/KristanLaimon",
 	"fundingUrl": "https://github.com/KristanLaimon",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }

@@ -58,7 +58,7 @@ export default class CodeIntelissensePlugin extends Plugin {
 
 	private onKeyDownInsideEditor(actualEditor: HTMLElement, e: KeyboardEvent) {
 		if (e.key) this.debug(`Key pressed: ${e.key}`);
-		ShowIntelissensePopupOnActualCursor({ options: ["Opción 1", "Opción 2", "Opción 3"] });
+		ShowIntelissensePopupOnActualCursor({ options: ["const", "let", "console.log", "more...."] });
 	}
 
 	onunload() {
